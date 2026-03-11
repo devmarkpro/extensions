@@ -1,7 +1,7 @@
-import { open } from "@raycast/api";
+import { open, trash } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { isSuperwhisperInstalled } from "./utils";
-import { readdirSync, readFileSync, existsSync, statSync, rmSync } from "fs";
+import { readdirSync, readFileSync, existsSync, statSync } from "fs";
 import { Mode } from "./select-mode";
 import { getPreferenceValues } from "@raycast/api";
 import { homedir } from "os";
@@ -179,7 +179,7 @@ export function deleteRecording(recordingsPath: string, directory: string): Prom
   if (!existsSync(fullPath)) {
     return Promise.resolve();
   }
-  return Promise.resolve(rmSync(fullPath, { recursive: true }));
+  return trash(fullPath);
 }
 
 export function getLatestRecordingByVariantFromRecordings(

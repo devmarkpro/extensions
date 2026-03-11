@@ -242,9 +242,10 @@ User question: ${question}`,
       }
       if (score === 0) continue;
 
-      const idx = textLower.indexOf(terms[0]);
+      const anchorTerm = terms.find((t) => textLower.includes(t));
+      const idx = anchorTerm ? textLower.indexOf(anchorTerm) : 0;
       const start = Math.max(0, idx - EXCERPT_WINDOW);
-      const end = Math.min(text.length, idx + terms[0].length + EXCERPT_WINDOW);
+      const end = Math.min(text.length, idx + (anchorTerm?.length ?? 0) + EXCERPT_WINDOW);
       let excerpt = text.slice(start, end);
       if (start > 0) excerpt = "…" + excerpt;
       if (end < text.length) excerpt = excerpt + "…";
