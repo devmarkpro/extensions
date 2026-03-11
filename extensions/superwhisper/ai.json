@@ -1,0 +1,38 @@
+{
+  "instructions": "When the user asks about their voice transcripts, what they said in recordings, or meeting notes from Superwhisper, call the ask-superwhisper tool with their question as the question argument. Use this tool only for questions about the user's own transcript content.",
+  "evals": [
+    {
+      "input": "@superwhisper What did I say about the project deadline?",
+      "mocks": {
+        "ask-superwhisper": [
+          "Based on your transcripts: You mentioned the project deadline in recording from 2024-01-15. You said the deadline is next Friday."
+        ]
+      },
+      "expected": [
+        {
+          "callsTool": {
+            "name": "ask-superwhisper",
+            "arguments": {
+              "question": {
+                "includes": "deadline"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "input": "@superwhisper Summarize what I said in my last meeting notes.",
+      "mocks": {
+        "ask-superwhisper": [
+          "Summary from your transcripts: You discussed three action items and assigned owners. The next meeting is set for next week."
+        ]
+      },
+      "expected": [
+        {
+          "callsTool": "ask-superwhisper"
+        }
+      ]
+    }
+  ]
+}

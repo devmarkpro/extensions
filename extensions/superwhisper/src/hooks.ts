@@ -1,7 +1,7 @@
 import { open } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { isSuperwhisperInstalled } from "./utils";
-import { readdirSync, readFileSync, existsSync, statSync } from "fs";
+import { readdirSync, readFileSync, existsSync, statSync, rmSync } from "fs";
 import { Mode } from "./select-mode";
 import { getPreferenceValues } from "@raycast/api";
 import { homedir } from "os";
@@ -10,6 +10,11 @@ import { join } from "path";
 export type RecordingMeta = {
   rawResult?: string;
   llmResult?: string;
+  duration?: number;
+  modelName?: string;
+  prompt?: string;
+  modeName?: string;
+  languageModelName?: string;
 };
 
 export type TranscriptVariant = "processed" | "unprocessed";
@@ -26,24 +31,25 @@ export type LatestRecording = {
 };
 
 export function useModes() {
+  const prefs = getPreferenceValues<Preferences.SelectMode>();
+  const modeDir = prefs.modeDir ?? join(homedir(), "Documents", "superwhisper", "modes");
+
   const {
     data: modes,
     isLoading,
     error,
   } = useCachedPromise(
-    async () => {
-      const { modeDir } = getPreferenceValues<Preferences.SelectMode>();
+    async (dir: string) => {
       const isInstalled = await isSuperwhisperInstalled();
       if (!isInstalled) {
         throw new Error("Superwhisper is not installed");
       }
 
-      // Read mode json files from configured mode directory
-      return readdirSync(modeDir)
+      return readdirSync(dir)
         .filter((file) => file.indexOf(".json") !== -1)
-        .map((file) => JSON.parse(readFileSync(`${modeDir}/${file}`, "utf8")) as Mode);
+        .map((file) => JSON.parse(readFileSync(`${dir}/${file}`, "utf8")) as Mode);
     },
-    [],
+    [modeDir],
     {
       failureToastOptions: {
         title: `Failed to fetch modes`,
@@ -71,10 +77,31 @@ function parseRecordingMeta(path: string): RecordingMeta | undefined {
 
     const rawResult = typeof parsed.rawResult === "string" ? parsed.rawResult : undefined;
     const llmResult = typeof parsed.llmResult === "string" ? parsed.llmResult : undefined;
-    return { rawResult, llmResult };
+    const duration = typeof parsed.duration === "number" ? parsed.duration : undefined;
+    const modelName = typeof parsed.modelName === "string" ? parsed.modelName : undefined;
+    const prompt = typeof parsed.prompt === "string" ? parsed.prompt : undefined;
+    const modeName = typeof parsed.modeName === "string" ? parsed.modeName : undefined;
+    const languageModelName = typeof parsed.languageModelName === "string" ? parsed.languageModelName : undefined;
+    return {
+      rawResult,
+      llmResult,
+      duration,
+      modelName,
+      prompt,
+      modeName,
+      languageModelName,
+    };
   } catch {
     return undefined;
   }
+}
+
+export function formatDurationMs(ms: number): string {
+  const hours = Math.floor(ms / 3600000);
+  const minutes = Math.floor((ms % 3600000) / 60000);
+  const seconds = Math.floor((ms % 60000) / 1000);
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 }
 
 export function getRecordingPrimaryText(meta: RecordingMeta): string {
@@ -144,6 +171,17 @@ export async function getRecordings(customRecordingsPath?: string): Promise<Reco
   return recordingsList;
 }
 
+export function deleteRecording(recordingsPath: string, directory: string): Promise<void> {
+  if (!directory || !/^\d+$/.test(directory)) {
+    return Promise.reject(new Error("Invalid directory: " + directory));
+  }
+  const fullPath = join(recordingsPath, directory);
+  if (!existsSync(fullPath)) {
+    return Promise.resolve();
+  }
+  return Promise.resolve(rmSync(fullPath, { recursive: true }));
+}
+
 export function getLatestRecordingByVariantFromRecordings(
   recordings: Recording[],
   variant: TranscriptVariant,
@@ -186,6 +224,7 @@ export function useRecordings(customRecordingsPath?: string) {
     data: recordings,
     isLoading,
     error,
+    revalidate,
   } = useCachedPromise(getRecordings, [customRecordingsPath], {
     failureToastOptions: {
       title: `Failed to fetch recordings`,
@@ -200,5 +239,5 @@ export function useRecordings(customRecordingsPath?: string) {
     },
   });
 
-  return { recordings, isLoading: (!recordings && !error) || isLoading, error };
+  return { recordings, isLoading: (!recordings && !error) || isLoading, error, revalidate };
 }

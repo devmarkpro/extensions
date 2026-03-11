@@ -1,9 +1,13 @@
 # superwhisper Changelog
 
-## [Recording Directory: copy/paste and single extension preference] - {PR_MERGE_DATE}
+## [Recording Directory, Mode Directory, Search History, and Ask Superwhisper] - {PR_MERGE_DATE}
 
 - Copy Last History and Paste Last History now read the Recording Directory from preferences when set, matching Search History behavior; they fall back to `~/Documents/superwhisper/recordings` when not configured.
 - Recording Directory is now configured once at the extension level (Preferences > Extensions > Superwhisper) and shared by Search History, Copy Last History, and Paste Last History; the duplicate per-command setting was removed.
+- Mode Directory is now configured once at the extension level and shared by Select Mode and Search History; the duplicate per-command setting was removed.
+- Added Ask Superwhisper: an AI tool/command to ask questions from your Superwhisper transcripts.
+- Search History: added text search, filter by mode, delete recording (with confirmation), and Ctrl+X hotkey to delete the selected recording.
+- Select Mode and Search History now show mode icons from your mode JSON files when available.
 
 ## [Copy/Paste Last History and fix missing meta files] - 2026-03-08
 

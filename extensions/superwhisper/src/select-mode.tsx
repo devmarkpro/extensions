@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Color, Icon, List, openCommandPreferences, showToast } from "@raycast/api";
+import { Action, ActionPanel, Color, Icon, Image, List, openCommandPreferences, showToast } from "@raycast/api";
 import { SUPERWHISPER_BUNDLE_ID } from "./utils";
 import { useModes } from "./hooks";
 
@@ -6,6 +6,8 @@ export interface Mode {
   key: string;
   name: string;
   description?: string;
+  iconName?: string;
+  type?: string;
   adjustOutputVolume?: boolean;
   language?: string;
   useSystemAudio?: boolean;
@@ -17,6 +19,46 @@ export interface Mode {
   voiceModelID?: string;
   realtimeOutput?: boolean;
   contextFromActiveApplication?: boolean;
+}
+
+const MODE_TYPE_ICONS: Record<string, Icon> = {
+  Default: Icon.Microphone,
+  Meeting: Icon.TwoPeople,
+  Mail: Icon.Envelope,
+  Message: Icon.Message,
+  Note: Icon.Document,
+  Custom: Icon.SquareEllipsis,
+};
+
+function normalizeTypeOrName(s: string | undefined): string | undefined {
+  if (!s?.trim()) return undefined;
+  const t = s.trim();
+  return t.charAt(0).toUpperCase() + t.slice(1).toLowerCase();
+}
+
+function getIconForModeType(type: string | undefined): Icon {
+  if (!type) return Icon.Microphone;
+  const direct = MODE_TYPE_ICONS[type];
+  if (direct) return direct;
+  const key = normalizeTypeOrName(type);
+  const byKey = key ? MODE_TYPE_ICONS[key] : undefined;
+  return byKey ?? Icon.Microphone;
+}
+
+export function getIconForModeName(modeName: string | undefined): Icon | undefined {
+  if (!modeName?.trim()) return undefined;
+  const normalized = normalizeTypeOrName(modeName.trim());
+  return normalized ? MODE_TYPE_ICONS[normalized] ?? undefined : undefined;
+}
+
+export function getModeIcon(mode: Mode): Image.ImageLike {
+  const iconName = mode.iconName?.trim();
+  const typeIcon = getIconForModeType(mode.type);
+  if (iconName) {
+    return { source: `${iconName}.png`, fallback: typeIcon };
+  }
+  const nameIcon = getIconForModeName(mode.name);
+  return nameIcon ?? typeIcon;
 }
 
 export default function Command() {
@@ -59,6 +101,8 @@ export default function Command() {
             key,
             name = "Default",
             description = "",
+            iconName,
+            type,
             adjustOutputVolume,
             language,
             useSystemAudio,
@@ -75,7 +119,7 @@ export default function Command() {
         ) => (
           <List.Item
             key={key}
-            icon={Icon.Waveform}
+            icon={getModeIcon({ key, name, iconName, type })}
             title={name}
             subtitle={`⌘${index + 1}`}
             detail={
