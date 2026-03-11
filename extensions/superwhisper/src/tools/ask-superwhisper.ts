@@ -179,7 +179,7 @@ export default async function askSuperwhisper(input: Input): Promise<string> {
     return "Raycast Pro is required to use AI for searching your transcripts. Please upgrade to use this feature.";
   }
 
-  const prefs = getPreferenceValues<{ recordingDir?: string }>();
+  const prefs = getPreferenceValues<Preferences>();
   const recordingsPath = prefs.recordingDir || DEFAULT_RECORDINGS_PATH;
 
   let recordings: Recording[];
