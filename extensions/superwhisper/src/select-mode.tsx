@@ -1,6 +1,13 @@
-import { Action, ActionPanel, Color, Icon, Image, List, openCommandPreferences, showToast } from "@raycast/api";
+import { Action, ActionPanel, Color, Icon, Image, List, open, openCommandPreferences, showToast } from "@raycast/api";
 import { SUPERWHISPER_BUNDLE_ID } from "./utils";
 import { useModes } from "./hooks";
+
+async function startRecordingWithMode(key: string, name: string) {
+  await open(`superwhisper://mode?key=${key}`, SUPERWHISPER_BUNDLE_ID);
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  await open("superwhisper://record", SUPERWHISPER_BUNDLE_ID);
+  await showToast({ title: `Started recording with ${name} mode` });
+}
 
 export interface Mode {
   key: string;
@@ -198,6 +205,11 @@ export default function Command() {
                     target={`superwhisper://mode?key=${key}`}
                     application={SUPERWHISPER_BUNDLE_ID}
                     onOpen={() => showToast({ title: `Selected ${name} mode for Superwhisper` })}
+                  />
+                  <Action
+                    icon={Icon.Microphone}
+                    title={`Start Recording with ${name}`}
+                    onAction={() => startRecordingWithMode(key, name)}
                   />
                 </ActionPanel.Section>
               </ActionPanel>

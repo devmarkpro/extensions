@@ -8,6 +8,7 @@
 - Added Ask Superwhisper: an AI tool/command to ask questions from your Superwhisper transcripts.
 - Search History: added text search, filter by mode, delete recording (with confirmation), and Ctrl+X hotkey to delete the selected recording.
 - Select Mode and Search History now show mode icons from your mode JSON files when available.
+- Select Mode: each mode row now has a "Start Recording with {mode}" action that selects the mode and immediately starts recording.
 
 ## [Copy/Paste Last History and fix missing meta files] - 2026-03-08
 
