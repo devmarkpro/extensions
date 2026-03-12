@@ -34,6 +34,7 @@ const MODE_TYPE_ICONS: Record<string, Icon> = {
   Mail: Icon.Envelope,
   Message: Icon.Message,
   Note: Icon.Document,
+  Super: Icon.Stars,
   Custom: Icon.SquareEllipsis,
 };
 

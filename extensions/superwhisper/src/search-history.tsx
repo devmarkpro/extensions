@@ -63,7 +63,7 @@ export default function Command() {
       isShowingDetail
       searchBarAccessory={
         <List.Dropdown tooltip="Filter by mode" value={selectedMode} onChange={setSelectedMode}>
-          <List.Dropdown.Item title="All Modes" value="" icon={Icon.Document} />
+          <List.Dropdown.Item title="All Modes" value="" icon="superwhisper-light-icon.png" />
           {modes?.map((mode) => (
             <List.Dropdown.Item key={mode.key} title={mode.name} value={mode.name} icon={getModeIcon(mode)} />
           ))}
