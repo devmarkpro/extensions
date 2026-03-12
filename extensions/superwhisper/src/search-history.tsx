@@ -175,6 +175,11 @@ ${promptBody}
                   path={join(recordingsPath, recording.directory)}
                   shortcut={{ modifiers: ["cmd", "shift"], key: "f" }}
                 />
+                <Action.CopyToClipboard
+                  title="Copy Meeting ID"
+                  content={recording.directory}
+                  shortcut={{ modifiers: ["cmd", "shift"], key: "m" }}
+                />
                 {meta.prompt?.trim() ? (
                   <Action.CopyToClipboard title="Copy Prompt" content={meta.prompt.trim()} />
                 ) : null}
